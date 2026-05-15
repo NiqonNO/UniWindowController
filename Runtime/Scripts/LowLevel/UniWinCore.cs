@@ -19,7 +19,7 @@ namespace Kirurobo
     /// <summary>
     /// Native plugin wrapper for LibUniWinC
     /// </summary>
-    internal class UniWinCore : IDisposable
+    public class UniWinCore : IDisposable
     {
         /// <summary>
         /// Type of transparent method for Windows only
