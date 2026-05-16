@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Kirurobo.Files;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,12 +35,12 @@ namespace Kirurobo
         /// Open the open file dialog to select single file.
         /// </summary>
         private void OpenSingleFile() {
-            FilePanel.Settings settings = new FilePanel.Settings();
-            settings.filters = new FilePanel.Filter[]
+            FilesSettings settings = new FilesSettings();
+            settings.filters = new FilesFilter[]
             {
-                new FilePanel.Filter("All files", "*"),
-                new FilePanel.Filter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
-                new FilePanel.Filter("Documents (*.txt;*.rtf;*.doc;*.docx)", "txt", "rtf", "doc", "docx"),
+                new FilesFilter("All files", "*"),
+                new FilesFilter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
+                new FilesFilter("Documents (*.txt;*.rtf;*.doc;*.docx)", "txt", "rtf", "doc", "docx"),
             };
             settings.title = "Open a file!";
             settings.initialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyPictures);
@@ -55,14 +56,14 @@ namespace Kirurobo
         /// Open the open file dialog to select multiple files.
         /// </summary>
         private void OpenMultipleFiles() {
-            FilePanel.Settings settings = new FilePanel.Settings();
-            settings.filters = new FilePanel.Filter[]
+            FilesSettings settings = new FilesSettings();
+            settings.filters = new FilesFilter[]
             {
-                new FilePanel.Filter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
-                new FilePanel.Filter("Documents (*.txt;*.rtf;*.doc;*.docx)", "txt", "rtf", "doc", "docx"),
-                new FilePanel.Filter("All files", "*"),
+                new FilesFilter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
+                new FilesFilter("Documents (*.txt;*.rtf;*.doc;*.docx)", "txt", "rtf", "doc", "docx"),
+                new FilesFilter("All files", "*"),
             };
-            settings.flags = FilePanel.Flag.AllowMultipleSelection;
+            settings.flags = Flag.AllowMultipleSelection;
             settings.title = "Open multiple files!";
             settings.initialDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
 
@@ -77,12 +78,12 @@ namespace Kirurobo
         /// Open the save file dialog.
         /// </summary>
         private void OpenSaveFile() {
-            FilePanel.Settings settings = new FilePanel.Settings();
-            settings.filters = new FilePanel.Filter[]
+            FilesSettings settings = new FilesSettings();
+            settings.filters = new FilesFilter[]
             {
-                new FilePanel.Filter("Text file (*.txt;*.log)", "txt", "log"),
-                new FilePanel.Filter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
-                new FilePanel.Filter("All files", "*"),
+                new FilesFilter("Text file (*.txt;*.log)", "txt", "log"),
+                new FilesFilter("Image files (*.png;*.jpg;*.jpeg;*.tiff;*.gif;*.tga)", "png", "jpg", "jpeg", "tiff", "gif", "tga"),
+                new FilesFilter("All files", "*"),
             };
             settings.title = "No save is actually performed";
             settings.initialFile = "Test.txt";

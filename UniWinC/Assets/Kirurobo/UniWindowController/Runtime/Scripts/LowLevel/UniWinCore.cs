@@ -6,10 +6,7 @@
  */
 
 using System;
-using System.Runtime.InteropServices;
-using AOT;
 using UnityEngine;
-using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,214 +18,10 @@ namespace Kirurobo
     /// </summary>
     public class UniWinCore : IDisposable
     {
-        /// <summary>
-        /// Type of transparent method for Windows only
-        /// </summary>
-        public enum TransparentType : int
-        {
-            None = 0,
-            Alpha = 1,
-            ColorKey = 2,
-        }
-
-
-        /// <summary>
-        /// State changed event type (Experimental)
-        /// </summary>
-        [Flags]
-        public enum WindowStateEventType : int
-        {
-            None = 0,
-            StyleChanged = 1,
-            Resized = 2,
-
-            // 以降は仕様変更もありえる
-            TopMostEnabled = 16 + 1 + 8,
-            TopMostDisabled = 16 + 1,
-            BottomMostEnabled = 32 + 1 + 8,
-            BottomMostDisabled = 32 + 1,
-            WallpaperModeEnabled = 64 + 1 + 8,
-            WallpaperModeDisabled = 64 + 1,
-        };
-
-        #region Native functions
-        protected class LibUniWinC
-        {
-            [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-            public delegate void StringCallback([MarshalAs(UnmanagedType.LPWStr)] string returnString);
-
-            [UnmanagedFunctionPointer((CallingConvention.Winapi))]
-            public delegate void IntCallback([MarshalAs(UnmanagedType.I4)] int value);
-
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsActive();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsTransparent();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsBorderless();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsTopmost();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsBottommost();
-
-            [DllImport("LibUniWinC", CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsMaximized();
-
-            [DllImport("LibUniWinC", CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool IsFreePositioningEnabled();
-            
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool AttachMyWindow();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool AttachMyOwnerWindow();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool AttachMyActiveWindow();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool DetachWindow();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void Update();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetTransparent([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetBorderless([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetAlphaValue(float alpha);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetClickThrough([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetTopmost([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetBottommost([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
-            public static extern void SetMaximized([MarshalAs(UnmanagedType.U1)] bool bZoomed);
-            
-            [DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
-            public static extern void EnableFreePositioning([MarshalAs(UnmanagedType.U1)] bool bEnabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetPosition(float x, float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetPosition(out float x, out float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetSize(float x, float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetSize(out float x, out float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetClientSize(out float width, out float height);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetClientRectangle(out float x, out float y, out float width, out float height);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool RegisterDropFilesCallback([MarshalAs(UnmanagedType.FunctionPtr)] StringCallback callback);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool UnregisterDropFilesCallback();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool RegisterMonitorChangedCallback([MarshalAs(UnmanagedType.FunctionPtr)] IntCallback callback);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool UnregisterMonitorChangedCallback();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool RegisterWindowStyleChangedCallback([MarshalAs(UnmanagedType.FunctionPtr)] IntCallback callback);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool UnregisterWindowStyleChangedCallback();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool SetAllowDrop([MarshalAs(UnmanagedType.U1)] bool enabled);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern int GetCurrentMonitor();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern int GetMonitorCount();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetMonitorRectangle(int index, out float x, out float y, out float width, out float height);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetCursorPosition(float x, float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool GetCursorPosition(out float x, out float y);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern int GetMouseButtons();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern int GetModifierKeys();
-
-
-            #region Working on Windows only
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetTransparentType(int type);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern void SetKeyColor(uint colorref);
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            public static extern int GetDebugInfo();
-
-            [DllImport("LibUniWinC",CallingConvention=CallingConvention.Winapi)]
-            [return: MarshalAs(UnmanagedType.Bool)]
-            public static extern bool AttachWindowHandle(IntPtr hWnd);
-            #endregion
-        }
-        #endregion
-
-        static string[] lastDroppedFiles;
-        static bool wasDropped = false;
-        static bool wasMonitorChanged = false;
-        static bool wasWindowStyleChanged = false;
-        static WindowStateEventType windowStateEventType = WindowStateEventType.None;
-
+        public event Action<string[]> OnDroppedFiles;
+        public event Action OnMonitorChanged;
+        public event Action<WindowStateEventType> OnWindowStyleChanged;
+        
 #if UNITY_EDITOR
         /// <summary>
         /// Get the Unity editor window
@@ -304,6 +97,9 @@ namespace Kirurobo
         public UniWinCore()
         {
             IsActive = false;
+            ObserverEventHub.OnMonitorChanged += InvokeMonitorChanged;
+            ObserverEventHub.OnDroppedFiles += InvokeDroppedFiles;
+            ObserverEventHub.OnWindowStyleChanged += InvokeWindowStyleChanged;
         }
 
         /// <summary>
@@ -311,6 +107,9 @@ namespace Kirurobo
         /// </summary>
         ~UniWinCore()
         {
+            ObserverEventHub.OnMonitorChanged -= InvokeMonitorChanged;
+            ObserverEventHub.OnDroppedFiles -= InvokeDroppedFiles;
+            ObserverEventHub.OnWindowStyleChanged -= InvokeWindowStyleChanged;
             Dispose();
         }
 
@@ -329,126 +128,23 @@ namespace Kirurobo
         }
         #endregion
 
-
         #region Callbacks
-
-        /// <summary>
-        /// モニタまたは解像度が変化したときのコールバック
-        /// この中での処理は最低限にするため、フラグを立てるのみ
-        /// </summary>
-        /// <param name="monitorCount"></param>
-        [MonoPInvokeCallback(typeof(LibUniWinC.IntCallback))]
-        private static void _monitorChangedCallback([MarshalAs(UnmanagedType.I4)] int monitorCount)
+        
+        private void InvokeMonitorChanged()
         {
-            wasMonitorChanged = true;
+            OnMonitorChanged?.Invoke();
         }
-
-        /// <summary>
-        /// ウィンドウスタイルや最大化、最小化等で呼ばれるコールバック
-        /// この中での処理は最低限にするため、フラグを立てるのみ
-        /// </summary>
-        /// <param name="e"></param>
-        [MonoPInvokeCallback(typeof(LibUniWinC.IntCallback))]
-        private static void _windowStyleChangedCallback([MarshalAs(UnmanagedType.I4)] int e)
+        private void InvokeDroppedFiles(string[] paths)
         {
-            wasWindowStyleChanged = true;
-            windowStateEventType = (WindowStateEventType)e;
+            OnDroppedFiles?.Invoke(paths);
         }
-
-        /// <summary>
-        /// ファイル、フォルダがドロップされた時に呼ばれるコールバック
-        /// 文字列を配列に直すことと、フラグを立てるまで行う
-        /// </summary>
-        /// <param name="paths"></param>
-        [MonoPInvokeCallback(typeof(LibUniWinC.StringCallback))]
-        private static void _dropFilesCallback([MarshalAs(UnmanagedType.LPWStr)] string paths)
+        private void InvokeWindowStyleChanged(WindowStateEventType type)
         {
-            // LF 区切りで届いた文字列を分割してパスの配列に直す
-            //char[] delimiters = { '\n', '\0' };
-            //string[] files = paths.Split(delimiters).Where(s => s != "").ToArray();
-            string[] files = parsePaths(paths);
-
-            if (files.Length > 0)
-            {
-                lastDroppedFiles = new string[files.Length];
-                files.CopyTo(lastDroppedFiles, 0);
-
-                wasDropped = true;
-            }
+            OnWindowStyleChanged?.Invoke(type);
         }
-
-        /// <summary>
-        /// ダブルクオーテーション囲み、LF（またはnull）区切りの文字列を配列に直して返す
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
-        internal static string[] parsePaths(string text)
-        {
-            System.Collections.Generic.List<string> list = new System.Collections.Generic.List<string>();
-            bool inEscaped = false;
-            int len = text.Length;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < len; i++)
-            {
-                char c = text[i];
-                if (c == '"')
-                {
-                    if (inEscaped)
-                    {
-                        if (((i + 1) < len) && text[i + 1] == '"')
-                        {
-                            i++;
-                            sb.Append(c);   // 連続ダブルクォーテーションは１つのダブルクオーテーションとする
-                            continue;
-                        }
-                    }
-                    inEscaped = !inEscaped; // 連続でなければ囲み内か否かの切り替え
-                }
-                else if (c == '\n')
-                {
-                    if (inEscaped)
-                    {
-                        // 囲み内ならパスの一部とする
-                        sb.Append(c);
-                    }
-                    else
-                    {
-                        // 囲み内でなければ、区切りとして、次のパスに移る
-                        if (sb.Length > 0)
-                        {
-                            list.Add(sb.ToString());
-                            //sb.Clear();   // for .NET 4 or later
-                            sb.Length = 0;  // for .NET 2
-                        }
-                    }
-                }
-                else if (c == '\0')
-                {
-                    // ヌル文字は、常に区切りとして、次のパスに移る
-                    if (sb.Length > 0)
-                    {
-                        list.Add(sb.ToString());
-                        //sb.Clear();   // for .NET 4 or later
-                        sb.Length = 0;  // for .NET 2
-                    }
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-            if (sb.Length > 0)
-            {
-                list.Add(sb.ToString());
-            }
-
-            // 空文字列の要素は除去
-            list.RemoveAll(v => v.Length == 0);
-            return list.ToArray();
-        }
-
+        
         #endregion
-
+        
         #region Find, attach or detach 
 
         /// <summary>
@@ -482,9 +178,9 @@ namespace Kirurobo
             LibUniWinC.AttachMyWindow();
 #endif
             // Add event handlers
-            LibUniWinC.RegisterDropFilesCallback(_dropFilesCallback);
-            LibUniWinC.RegisterMonitorChangedCallback(_monitorChangedCallback);
-            LibUniWinC.RegisterWindowStyleChangedCallback(_windowStyleChangedCallback);
+            LibUniWinC.RegisterDropFilesCallback(ObserverEventHub._dropFilesCallback);
+            LibUniWinC.RegisterMonitorChangedCallback(ObserverEventHub._monitorChangedCallback);
+            LibUniWinC.RegisterWindowStyleChangedCallback(ObserverEventHub._windowStyleChangedCallback);
 
             IsActive = LibUniWinC.IsActive();
             return IsActive;
@@ -676,68 +372,6 @@ namespace Kirurobo
         public void SetAllowDrop(bool enabled)
         {
             LibUniWinC.SetAllowDrop(enabled);
-        }
-
-#endregion
-
-#region Event observers
-
-        /// <summary>
-        /// Check files dropping and unset the dropped flag
-        /// </summary>
-        /// <param name="files"></param>
-        /// <returns>true if files were dropped</returns>
-        public bool ObserveDroppedFiles(out string[] files)
-        {
-            files = lastDroppedFiles;
-
-            if (!wasDropped || files == null) return false;
-
-            wasDropped = false;
-            return true;
-        }
-
-        /// <summary>
-        /// Check the numbers of display or resolution changing, and unset the flag 
-        /// </summary>
-        /// <returns>true if changed</returns>
-        public bool ObserveMonitorChanged()
-        {
-            if (!wasMonitorChanged) return false;
-
-            wasMonitorChanged = false;
-            return true;
-        }
-
-        /// <summary>
-        /// Check window style was changed, and unset the flag 
-        /// </summary>
-        /// <returns>True if window styel was changed</returns>
-        public bool ObserveWindowStyleChanged()
-        {
-            if (!wasWindowStyleChanged) return false;
-
-            windowStateEventType = WindowStateEventType.None;
-            wasWindowStyleChanged = false;
-            return true;
-        }
-
-        /// <summary>
-        /// Check window style was changed, and unset the flag 
-        /// </summary>
-        /// <returns>True if window styel was changed</returns>
-        public bool ObserveWindowStyleChanged(out WindowStateEventType type)
-        {
-            if (!wasWindowStyleChanged)
-            {
-                type = WindowStateEventType.None;
-                return false;
-            }
-
-            type = windowStateEventType;
-            windowStateEventType = WindowStateEventType.None;
-            wasWindowStyleChanged = false;
-            return true;
         }
 
 #endregion

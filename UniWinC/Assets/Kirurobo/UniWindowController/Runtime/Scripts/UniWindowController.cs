@@ -46,16 +46,6 @@ namespace Kirurobo
     public class UniWindowController : MonoBehaviour
     {
         /// <summary>
-        /// The same as UniWinCore.TransparentType
-        /// </summary>
-        public enum TransparentType : int
-        {
-            None = 0,
-            Alpha = 1,
-            ColorKey = 2,
-        }
-
-        /// <summary>
         /// Scecifies method to hit-test (i.e., switching click-through)
         /// </summary>
         public enum HitTestType : int
@@ -64,26 +54,7 @@ namespace Kirurobo
             Opacity = 1,
             Raycast = 2,
         }
-
-        /// <summary>
-        /// Identifies the type of <see cref="OnStateChanged">OnStateChanged</see> event when it occurs
-        /// </summary>
-        [Flags]
-        public enum WindowStateEventType : int
-        {
-            None = 0,
-            StyleChanged = 1,
-            Resized = 2,
-
-            // 以降は仕様変更もありえる
-            TopMostEnabled = 16 + 1 + 8,
-            TopMostDisabled = 16 + 1,
-            BottomMostEnabled = 32 + 1 + 8,
-            BottomMostDisabled = 32 + 1,
-            WallpaperModeEnabled = 64 + 1 + 8,
-            WallpaperModeDisabled = 64 + 1,
-        };
-
+        
         /// <summary>
         /// Mouse buttons
         /// </summary>
@@ -435,6 +406,10 @@ namespace Kirurobo
 
             // ウィンドウ制御用のインスタンス作成
             _uniWinCore = new UniWinCore();
+
+            _uniWinCore.OnDroppedFiles += InvokeFileDropped;
+            _uniWinCore.OnMonitorChanged += InvokeMonitorChanged;
+            _uniWinCore.OnWindowStyleChanged += InvokeStyleChanged;
         }
 
         /// <summary>
@@ -506,6 +481,10 @@ namespace Kirurobo
 
         void OnDestroy()
         {
+            _uniWinCore.OnDroppedFiles -= InvokeFileDropped;
+            _uniWinCore.OnMonitorChanged -= InvokeMonitorChanged;
+            _uniWinCore.OnWindowStyleChanged -= InvokeStyleChanged;
+            
             if (_uniWinCore != null)
             {
                 _uniWinCore.Dispose();
@@ -539,45 +518,32 @@ namespace Kirurobo
             {
                 _uniWinCore.Update();
             }
-            
-            // Process events
-            UpdateEvents();
 
             // キー、マウス操作の下ウィンドウへの透過状態を更新
             UpdateClickThrough();
         }
 
-        /// <summary>
-        /// Check and process UniWinCore events
-        /// </summary>
-        private void UpdateEvents()
+        private void InvokeFileDropped(string[] droppedFiles)
         {
-            if (_uniWinCore == null) return;
+            OnDropFiles?.Invoke(droppedFiles);
+        }
 
-            if (_uniWinCore.ObserveDroppedFiles(out var droppedFiles))
-            {
-                OnDropFiles?.Invoke(droppedFiles);
-            }
+        private void InvokeMonitorChanged()
+        {
+            OnMonitorChanged?.Invoke();
+        }
 
-            if (_uniWinCore.ObserveMonitorChanged())
-            {
-
-                OnMonitorChanged?.Invoke();
-            }
-
-            if (_uniWinCore.ObserveWindowStyleChanged(out var type))
-            {
-                // // モニタへのフィット指定がある状態で最大化解除された場合
-                // if (shouldFitMonitor && !uniWinCore.GetZoomed())
-                // {
-                //     //StartCoroutine("ForceZoomed");    // 時間差で最大化を強制
-                //     //SetZoomed(true);        // 強制的に最大化　←必ずしも働かない
-                //     //shouldFitMonitor = false;    // フィットを無効化
-                // }
-                if (_shouldFitMonitor) StartCoroutine("ForceZoomed"); // 時間差で最大化を強制
-                
-                OnStateChanged?.Invoke((WindowStateEventType)type);
-            }
+        private void InvokeStyleChanged(WindowStateEventType type)
+        {
+            // // モニタへのフィット指定がある状態で最大化解除された場合
+            // if (shouldFitMonitor && !uniWinCore.GetZoomed())
+            // {
+            //     //StartCoroutine("ForceZoomed");    // 時間差で最大化を強制
+            //     //SetZoomed(true);        // 強制的に最大化　←必ずしも働かない
+            //     //shouldFitMonitor = false;    // フィットを無効化
+            // }
+            if (_shouldFitMonitor) StartCoroutine("ForceZoomed"); // 時間差で最大化を強制
+            OnStateChanged?.Invoke(type);
         }
 
         IEnumerator ForceZoomed()
@@ -867,7 +833,7 @@ namespace Kirurobo
                 // ウィンドウを取得できたら最初の値を設定
                 if (_uniWinCore.IsActive)
                 {
-                    _uniWinCore.SetTransparentType((UniWinCore.TransparentType)transparentType);
+                    _uniWinCore.SetTransparentType(transparentType);
                     _uniWinCore.SetKeyColor(keyColor);
                     _uniWinCore.SetAlphaValue(_alphaValue);
                     SetTransparent(_isTransparent);
@@ -980,13 +946,13 @@ namespace Kirurobo
                 if (_isTransparent)
                 {
                     SetTransparent(false);
-                    _uniWinCore.SetTransparentType((UniWinCore.TransparentType)type);
+                    _uniWinCore.SetTransparentType(type);
                     transparentType = type;
                     SetTransparent(true);
                 }
                 else
                 {
-                    _uniWinCore.SetTransparentType((UniWinCore.TransparentType)type);
+                    _uniWinCore.SetTransparentType(type);
                     transparentType = type;
                 }
             }
