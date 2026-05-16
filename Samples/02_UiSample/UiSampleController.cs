@@ -6,6 +6,7 @@
  */
 
 using System;
+using Kirurobo.Files;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -93,7 +94,7 @@ namespace Kirurobo
                 
                 clickThroughToggle?.onValueChanged.AddListener(val => uniwinc.isClickThrough = val);
 
-                transparentTypeDropdown?.onValueChanged.AddListener(val => uniwinc.SetTransparentType((UniWindowController.TransparentType)val));
+                transparentTypeDropdown?.onValueChanged.AddListener(val => uniwinc.SetTransparentType((TransparentType)val));
                 hitTestTypeDropdown?.onValueChanged.AddListener(val => uniwinc.hitTestType = (UniWindowController.HitTestType)val);
                 menuCloseButton?.onClick.AddListener(CloseMenu);
 
@@ -245,13 +246,13 @@ namespace Kirurobo
             // Test for OpenFilePanel
             if (InputProxy.GetKeyUp("o"))
             {
-                FilePanel.Settings ds = new FilePanel.Settings
+                FilesSettings ds = new FilesSettings
                 {
-                    flags = FilePanel.Flag.AllowMultipleSelection,
+                    flags = Flag.AllowMultipleSelection,
                     title = "Open!",
-                    filters = new FilePanel.Filter[]{
-                        new FilePanel.Filter("Image files", "png", "jpg", "jpeg"),
-                        new FilePanel.Filter("All files", "*"),
+                    filters = new FilesFilter[]{
+                        new FilesFilter("Image files", "png", "jpg", "jpeg"),
+                        new FilesFilter("All files", "*"),
                     },
                     initialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),
                     initialFile = "test.png",
@@ -262,11 +263,11 @@ namespace Kirurobo
             // Test for SaveFilePanel
             if (InputProxy.GetKeyUp("s"))
             {
-                FilePanel.Settings ds = new FilePanel.Settings
+                FilesSettings ds = new FilesSettings
                 {
-                    flags = FilePanel.Flag.AllowMultipleSelection,
+                    flags = Flag.AllowMultipleSelection,
                     title = "Save!",
-                    filters = new FilePanel.Filter[]{
+                    filters = new FilesFilter[]{
                         //// TODO: ファイル種類指定があると、macOSの保存ダイアログを開くことに失敗する
                         //// NSSavePanel.accessoryView に何か指定すると発生する。
                         //// それが継承された NSOpenPanel では発生しない。
