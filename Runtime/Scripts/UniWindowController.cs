@@ -561,6 +561,7 @@ namespace Kirurobo
 
             if (_uniWinCore.ObserveMonitorChanged())
             {
+
                 OnMonitorChanged?.Invoke();
             }
 
