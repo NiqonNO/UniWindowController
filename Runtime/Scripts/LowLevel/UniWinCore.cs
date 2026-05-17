@@ -210,6 +210,7 @@ namespace Kirurobo
         #region About window status
         /// <summary>
         /// Call this periodically to maintain window style
+        /// TODO: This is a workaround for cocoa overriding window properties on mac. Currently no way of testing this, 
         /// </summary>
         public void Update()
         {
