@@ -516,7 +516,7 @@ namespace Kirurobo
                 UpdateTargetWindow();
             } else
             {
-                _uniWinCore.Update();
+                //_uniWinCore.Update();
             }
 
             // キー、マウス操作の下ウィンドウへの透過状態を更新
