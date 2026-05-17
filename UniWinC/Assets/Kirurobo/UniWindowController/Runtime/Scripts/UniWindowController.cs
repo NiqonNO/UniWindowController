@@ -481,12 +481,12 @@ namespace Kirurobo
 
         void OnDestroy()
         {
-            _uniWinCore.OnDroppedFiles -= InvokeFileDropped;
-            _uniWinCore.OnMonitorChanged -= InvokeMonitorChanged;
-            _uniWinCore.OnWindowStyleChanged -= InvokeStyleChanged;
-            
             if (_uniWinCore != null)
             {
+                _uniWinCore.OnDroppedFiles -= InvokeFileDropped;
+                _uniWinCore.OnMonitorChanged -= InvokeMonitorChanged;
+                _uniWinCore.OnWindowStyleChanged -= InvokeStyleChanged;
+                
                 _uniWinCore.Dispose();
             }
 
