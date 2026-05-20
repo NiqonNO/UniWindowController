@@ -7,6 +7,8 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -396,6 +398,18 @@ namespace Kirurobo
             Vector2 pos = Vector2.zero;
             LibUniWinC.GetCursorPosition(out pos.x, out pos.y);
             return pos;
+        }
+        
+        public void EnforceCursorPosition()
+        {
+            Vector2 mousePos = GetCursorPosition();
+            Vector2 winPos = GetWindowPosition();
+            Rect clientRect = GetClientRectangle();
+            Vector2 unityPos = new Vector2(
+                (mousePos.x - winPos.x - clientRect.x) * Screen.width / clientRect.width,
+                (mousePos.y - winPos.y - clientRect.y) * Screen.height / clientRect.height
+            );
+            InputState.Change(Mouse.current.position, unityPos);
         }
 
         /// <summary>
