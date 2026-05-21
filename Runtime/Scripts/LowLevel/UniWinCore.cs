@@ -400,7 +400,7 @@ namespace Kirurobo
             return pos;
         }
         
-        public void EnforceCursorPosition()
+        public Vector2 EnforceCursorPosition()
         {
             Vector2 mousePos = GetCursorPosition();
             Vector2 winPos = GetWindowPosition();
@@ -409,7 +409,8 @@ namespace Kirurobo
                 (mousePos.x - winPos.x - clientRect.x) * Screen.width / clientRect.width,
                 (mousePos.y - winPos.y - clientRect.y) * Screen.height / clientRect.height
             );
-            InputState.Change(Mouse.current.position, unityPos);
+            InputState.Change(Pointer.current.position, unityPos);
+            return unityPos;
         }
 
         /// <summary>
