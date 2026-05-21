@@ -123,6 +123,7 @@ UNIWINC_EXPORT BOOL UNIWINC_API UnregisterDropFilesCallback();
 // Monitor Info.
 UNIWINC_EXPORT INT32 UNIWINC_API GetMonitorCount();
 UNIWINC_EXPORT BOOL UNIWINC_API GetMonitorRectangle(const INT32 monitorIndex, float* x, float* y, float* width, float* height);
+UNIWINC_EXPORT BOOL  UNIWINC_API GetWorkSpaceRectangle(const INT32 monitorIndex, float* x, float* y, float* width, float* height);
 
 // Mouse pointer
 UNIWINC_EXPORT BOOL UNIWINC_API SetCursorPosition(const float x, const float y);
