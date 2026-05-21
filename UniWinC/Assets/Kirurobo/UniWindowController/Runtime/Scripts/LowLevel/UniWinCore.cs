@@ -513,26 +513,12 @@ namespace Kirurobo
             float dx, dy, dw, dh;
             if (LibUniWinC.GetMonitorRectangle(monitorIndex, out dx, out dy, out dw, out dh))
             {
-                // 最大化状態なら一度戻す
-                if (LibUniWinC.IsMaximized()) LibUniWinC.SetMaximized(false);
-
-                // 指定モニタ中央座標
-                float cx = dx + (dw / 2);
-                float cy = dy + (dh / 2);
-
-                // ウィンドウ中央を指定モニタ中央に移動
-                float ww, wh;
-                LibUniWinC.GetSize(out ww, out wh);
-                float wx = cx - (ww / 2);
-                float wy = cy - (wh / 2);
-                LibUniWinC.SetPosition(wx, wy);
-
-                // 最大化
-                LibUniWinC.SetMaximized(true);
-
-                //Debug.Log(String.Format("Monitor {4} : {0},{1} - {2},{3}", dx, dy, dw, dh, monitorIndex));
+                // Set window size and position to cover the work area
+                LibUniWinC.SetSize(dw, dh);
+                LibUniWinC.SetPosition(dx, dy);
                 return true;
             }
+
             return false;
         }
 
