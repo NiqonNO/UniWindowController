@@ -717,7 +717,7 @@ void UNIWINC_API SetBorderless(const BOOL bBorderless) {
 		LONG newStyle;
 		if (bBorderless) {
 			// 枠無しウィンドウのスタイル
-			newStyle = (WS_VISIBLE | WS_OVERLAPPEDWINDOW);
+			newStyle = (WS_VISIBLE | WS_POPUP);
 			offset = -1;
 		} else {
 			// 初期のウィンドウスタイル（必ずしも枠ありとは限らない）
