@@ -148,6 +148,11 @@ namespace Kirurobo
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool GetMonitorRectangle(int index, out float x, out float y, out float width,
 			out float height);
+		
+		[DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool GetWorkSpaceRectangle(int index, out float x, out float y, out float width,
+			out float height);
 
 		[DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
 		public static extern void SetCursorPosition(float x, float y);
