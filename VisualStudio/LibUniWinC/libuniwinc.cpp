@@ -314,7 +314,7 @@ BOOL updateMonitorWorkRectangles()
 			return FALSE;
 		}
 
-		pMonitorWorkRect_[i] = mi.rcWork;
+		pMonitorWorkRect_[pMonitorIndices_[i]] = mi.rcWork;
 	}
 
 	return TRUE;
