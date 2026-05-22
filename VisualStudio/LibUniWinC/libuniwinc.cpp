@@ -29,7 +29,6 @@ static TransparentType nTransparentType_ = TransparentType::Alpha;
 static TransparentType nCurrentTransparentType_ = TransparentType::Alpha;
 static INT nMonitorCount_ = 0;							// モニタ数。モニタ解像度一覧取得時は一時的に0に戻る
 static RECT pMonitorRect_[UNIWINC_MAX_MONITORCOUNT];	// EnumDisplayMonitorsの順番で保持した、各画面のRECT
-static RECT pWorkSpaceRect_[UNIWINC_MAX_MONITORCOUNT];
 static INT pMonitorIndices_[UNIWINC_MAX_MONITORCOUNT];	// このライブラリ独自のモニタ番号をキーとした、EnumDisplayMonitorsでの順番
 static HMONITOR hMonitors_[UNIWINC_MAX_MONITORCOUNT];	// Monitor handles
 static WNDPROC lpMyWndProc_ = NULL;
@@ -263,10 +262,6 @@ BOOL CALLBACK monitorEnumProc(HMONITOR hMon, HDC hDc, LPRECT lpRect, LPARAM lPar
 
 	// Store the monitor handle
 	hMonitors_[nMonitorCount_] = hMon;
-
-	MONITORINFO mi = { sizeof(mi) };
-	GetMonitorInfo(hMon, &mi);
-	pWorkSpaceRect_[nMonitorCount_] = mi.rcWork;
 
 	// モニタ数カウント
 	nMonitorCount_++;
@@ -1249,8 +1244,12 @@ BOOL  UNIWINC_API GetWorkSpaceRectangle(const INT32 monitorIndex, float* x, floa
 	if (monitorIndex < 0 || monitorIndex >= nMonitorCount_) {
 		return FALSE;
 	}
+	
+	MONITORINFO mi;
+	mi.cbSize = sizeof(mi);
+	GetMonitorInfo(hMonitors_[pMonitorIndices_[monitorIndex]], &mi);
 
-	RECT rect = pWorkSpaceRect_[pMonitorIndices_[monitorIndex]];
+	RECT rect = mi.rcWork;
 	*x = (float)(rect.left);
 	*y = (float)(nPrimaryMonitorHeight_ - rect.bottom);		// 左下基準とする
 	*width = (float)(rect.right - rect.left);
