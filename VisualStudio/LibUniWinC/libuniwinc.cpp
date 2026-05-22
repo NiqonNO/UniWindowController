@@ -29,6 +29,7 @@ static TransparentType nTransparentType_ = TransparentType::Alpha;
 static TransparentType nCurrentTransparentType_ = TransparentType::Alpha;
 static INT nMonitorCount_ = 0;							// モニタ数。モニタ解像度一覧取得時は一時的に0に戻る
 static RECT pMonitorRect_[UNIWINC_MAX_MONITORCOUNT];	// EnumDisplayMonitorsの順番で保持した、各画面のRECT
+static RECT pMonitorWorkRect_[UNIWINC_MAX_MONITORCOUNT];
 static INT pMonitorIndices_[UNIWINC_MAX_MONITORCOUNT];	// このライブラリ独自のモニタ番号をキーとした、EnumDisplayMonitorsでの順番
 static HMONITOR hMonitors_[UNIWINC_MAX_MONITORCOUNT];	// Monitor handles
 static WNDPROC lpMyWndProc_ = NULL;
@@ -300,6 +301,25 @@ BOOL updateMonitorRectangles() {
 	return TRUE;
 }
 
+BOOL updateMonitorWorkRectangles()
+{
+	for (int i = 0; i < nMonitorCount_; i++) {
+		MONITORINFO mi{};
+		mi.cbSize = sizeof(mi);
+
+		if (!GetMonitorInfo(
+			hMonitors_[pMonitorIndices_[i]],
+			&mi))
+		{
+			return FALSE;
+		}
+
+		pMonitorWorkRect_[i] = mi.rcWork;
+	}
+
+	return TRUE;
+}
+
 /// <summary>
 /// 全面をGlassにする
 /// </summary>
@@ -437,6 +457,7 @@ void updateScreenSize() {
 	// Update the monitor resolution list.
 	//   To use the nPrimaryMonitorHeight, do this after its acquisition.
 	updateMonitorRectangles();
+	updateMonitorWorkRectangles();
 }
 
 /// <summary>
@@ -1245,11 +1266,11 @@ BOOL  UNIWINC_API GetWorkSpaceRectangle(const INT32 monitorIndex, float* x, floa
 		return FALSE;
 	}
 	
-	MONITORINFO mi;
+	/*MONITORINFO mi;
 	mi.cbSize = sizeof(mi);
-	GetMonitorInfo(hMonitors_[pMonitorIndices_[monitorIndex]], &mi);
+	GetMonitorInfo(hMonitors_[pMonitorIndices_[monitorIndex]], &mi);*/
 
-	RECT rect = mi.rcWork;
+	RECT rect = pMonitorWorkRect_[pMonitorIndices_[monitorIndex]];//mi.rcWork;
 	*x = (float)(rect.left);
 	*y = (float)(nPrimaryMonitorHeight_ - rect.bottom);		// 左下基準とする
 	*width = (float)(rect.right - rect.left);
@@ -1442,6 +1463,18 @@ LRESULT CALLBACK customWindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		}
 		break;
 
+	case WM_SETTINGCHANGE:
+		if (((LPCWSTR)lParam == nullptr) ||
+			(wcscmp((LPCWSTR)lParam, L"WindowMetrics") == 0))
+		{
+			updateScreenSize();
+
+			if (hMonitorChangedHandler_ != nullptr) {
+				hMonitorChangedHandler_(GetMonitorCount());
+			}
+		}
+		break;
+		
 	case WM_WINDOWPOSCHANGING:
 		// 常に最背面
 		if (bIsBottommost_) {
