@@ -52,6 +52,7 @@ void applyWindowAlphaValue();
 //void endHook();
 void createCustomWindowProcedure();
 void destroyCustomWindowProcedure();
+void cancelUserWindowInteraction();
 
 
 /// <summary>
@@ -108,7 +109,7 @@ void attachWindow(const HWND hWnd) {
 
 	// Set the target
 	hTargetWnd_ = hWnd;
-
+	cancelUserWindowInteraction();
 	if (hWnd) {
 		// Save the original state
 		GetWindowInfo(hWnd, &originalWindowInfo_);
@@ -472,6 +473,14 @@ BOOL getTopMost() {
 	return (ex & WS_EX_TOPMOST) == WS_EX_TOPMOST;
 }
 
+void cancelUserWindowInteraction()
+{
+	if (!hTargetWnd_) return;
+
+	ReleaseCapture();
+	SendMessage(hTargetWnd_, WM_CANCELMODE, 0, 0);
+}
+
 #pragma endregion Internal functions
 
 
@@ -714,6 +723,7 @@ void UNIWINC_API SetTransparent(const BOOL bTransparent) {
 /// <param name="bBorderless"></param>
 void UNIWINC_API SetBorderless(const BOOL bBorderless) {
 	if (hTargetWnd_) {
+		cancelUserWindowInteraction();
 		int newW, newH, newX, newY;
 		RECT rcWin, rcCli;
 		GetWindowRect(hTargetWnd_, &rcWin);
