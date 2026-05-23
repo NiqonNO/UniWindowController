@@ -479,12 +479,7 @@ void cancelUserWindowInteraction()
 	if (!hTargetWnd_) return;
 
 	ReleaseCapture();
-	RECT rect;
-	GetWindowRect(hTargetWnd_, &rect);
-	SetWindowPos(hTargetWnd_, nullptr,
-	0, 0, (rect.right - rect.left), (rect.bottom - rect.top),
-	SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOACTIVATE //| SWP_ASYNCWINDOWPOS
-	);
+	SendMessage(hTargetWnd_, WM_CANCELMODE, 0, 0);
 }
 
 #pragma endregion Internal functions
@@ -764,8 +759,8 @@ void UNIWINC_API SetBorderless(const BOOL bBorderless) {
 		
 		// 変更後のウィンドウサイズを計算
 		AdjustWindowRect(&rcCli, newStyle, hasMenu);
-		newW = rcCli.right - rcCli.left;
-		newH = rcCli.bottom - rcCli.top;
+		newW = rcWin.right - rcWin.left;
+		newH = rcWin.bottom - rcWin.top;
 			
 		int dx = w - newW;	// 変更後に広がる幅（負もある） [px]
 		int dy = h - newH;	// 変更後に広がる高さ（負もある） [px]
