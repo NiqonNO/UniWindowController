@@ -11,7 +11,6 @@ namespace Kirurobo
 		None = 0,
 		StyleChanged = 1,
 		Resized = 2,
-		SizeMoveExit = 3,
 
 		// 以降は仕様変更もありえる
 		TopMostEnabled = 16 + 1 + 8,
