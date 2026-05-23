@@ -759,8 +759,8 @@ void UNIWINC_API SetBorderless(const BOOL bBorderless) {
 		
 		// 変更後のウィンドウサイズを計算
 		AdjustWindowRect(&rcCli, newStyle, hasMenu);
-		newW = rcWin.right - rcWin.left;
-		newH = rcWin.bottom - rcWin.top;
+		newW = rcCli.right - rcCli.left;
+		newH = rcCli.bottom - rcCli.top;
 			
 		int dx = w - newW;	// 変更後に広がる幅（負もある） [px]
 		int dy = h - newH;	// 変更後に広がる高さ（負もある） [px]
