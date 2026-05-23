@@ -480,6 +480,7 @@ void cancelUserWindowInteraction()
 
 	ReleaseCapture();
 	SendMessage(hTargetWnd_, WM_CANCELMODE, 0, 0);
+	Sleep(10);
 }
 
 #pragma endregion Internal functions
