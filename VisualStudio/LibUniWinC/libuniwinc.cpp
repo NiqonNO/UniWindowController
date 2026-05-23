@@ -1513,6 +1513,12 @@ LRESULT CALLBACK customWindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 			break;
 		}
 		break;
+
+	case WM_EXITSIZEMOVE:
+		if (hWindowStyleChangedHandler_ != nullptr){
+			hWindowStyleChangedHandler_((INT32)WindowStateEventType::SizeMoveExit);
+		}
+		break;
 		
 	default:
 		break;
