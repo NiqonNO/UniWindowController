@@ -1014,6 +1014,7 @@ void UNIWINC_API SetClickThrough(const BOOL bTransparent) {
 BOOL UNIWINC_API SetPosition(const float x, const float y) {
 	if (hTargetWnd_ == NULL) return FALSE;
 
+	cancelUserWindowInteraction();
 	// 現在のウィンドウ位置とサイズを取得
 	RECT rect;
 	GetWindowRect(hTargetWnd_, &rect);
