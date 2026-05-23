@@ -479,10 +479,12 @@ void cancelUserWindowInteraction()
 	if (!hTargetWnd_) return;
 
 	ReleaseCapture();
-	SendMessage(hTargetWnd_, WM_CANCELMODE, 0, 0);
+	RECT rect;
+	GetWindowRect(hTargetWnd_, &rect);
 	SetWindowPos(hTargetWnd_, nullptr,
-	0, 0, 0, 0,
-	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+	0, 0, (rect.right - rect.left), (rect.bottom - rect.top),
+	SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOACTIVATE //| SWP_ASYNCWINDOWPOS
+	);
 }
 
 #pragma endregion Internal functions
