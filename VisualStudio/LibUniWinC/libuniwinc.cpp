@@ -406,7 +406,8 @@ void findDesktopWindow() {
 /// <summary>
 /// 枠を消した際に描画サイズが合わなくなることに対応するため、ウィンドウを強制リサイズして更新
 /// </summary>
-void refreshWindowRect() {
+void refreshWindowRect()
+{
 	if (!hTargetWnd_) return;
 
 	if (IsZoomed(hTargetWnd_)) {
@@ -425,7 +426,7 @@ void refreshWindowRect() {
 		GetWindowRect(hTargetWnd_, &rect);
 
 		// 1px横幅を広げて、リサイズイベントを強制的に起こす
-		SetWindowPos(
+		/*SetWindowPos(
 			hTargetWnd_,
 			NULL,
 			0, 0, (rect.right - rect.left + 1), (rect.bottom - rect.top + 1),
@@ -438,6 +439,13 @@ void refreshWindowRect() {
 			NULL,
 			0, 0, (rect.right - rect.left), (rect.bottom - rect.top),
 			SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOACTIVATE //| SWP_ASYNCWINDOWPOS
+		);*/
+
+		SetWindowPos(
+			hTargetWnd_,
+			NULL,
+			0, 0, 0, 0,
+			SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOOWNERZORDER | SWP_NOACTIVATE //| SWP_ASYNCWINDOWPOS
 		);
 
 		ShowWindow(hTargetWnd_, SW_SHOW);
@@ -1014,7 +1022,6 @@ void UNIWINC_API SetClickThrough(const BOOL bTransparent) {
 BOOL UNIWINC_API SetPosition(const float x, const float y) {
 	if (hTargetWnd_ == NULL) return FALSE;
 
-	cancelUserWindowInteraction();
 	// 現在のウィンドウ位置とサイズを取得
 	RECT rect;
 	GetWindowRect(hTargetWnd_, &rect);
