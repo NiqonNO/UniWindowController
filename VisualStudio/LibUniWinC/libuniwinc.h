@@ -28,7 +28,6 @@ enum class WindowStateEventType : int {
 	None = 0,
 	StyleChanged = 1,
 	Resized = 2,
-	SizeMoveExit = 3,
 
 	// 以下はStyleChangedに加えて詳細情報を伝えるために用意（開発時のデバッグ用途が主のため今後の仕様変更はありえる）
 	//   1: StyleChanged flag, 8: Enabled flag

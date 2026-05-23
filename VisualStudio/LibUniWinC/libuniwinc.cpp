@@ -480,7 +480,6 @@ void cancelUserWindowInteraction()
 
 	ReleaseCapture();
 	SendMessage(hTargetWnd_, WM_CANCELMODE, 0, 0);
-	Sleep(10);
 }
 
 #pragma endregion Internal functions
@@ -1512,12 +1511,6 @@ LRESULT CALLBACK customWindowProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 				hWindowStyleChangedHandler_((INT32)WindowStateEventType::Resized);
 			}
 			break;
-		}
-		break;
-
-	case WM_EXITSIZEMOVE:
-		if (hWindowStyleChangedHandler_ != nullptr){
-			hWindowStyleChangedHandler_((INT32)WindowStateEventType::SizeMoveExit);
 		}
 		break;
 		
